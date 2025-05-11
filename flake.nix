@@ -8,7 +8,9 @@
 
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
-      let pkgs = import nixpkgs { inherit system; };
+      let
+        pkgs = import nixpkgs { inherit system; };
+        templateDir = ./templates;
       in {
         devShells.default =
           pkgs.mkShell { packages = [ pkgs.jq pkgs.mustache-go ]; };
@@ -16,7 +18,11 @@
         packages.default = pkgs.writeShellApplication {
           name = "scaffold-haskell";
           runtimeInputs = [ pkgs.jq pkgs.mustache-go ];
-          text = builtins.readFile ./scripts/render-project.sh;
+          text = ''
+            #!/usr/bin/env bash
+            export TEMPLATE_DIR=${templateDir}
+            exec ${./scripts/render-project.sh} "$@"
+          '';
         };
 
         apps.default =
