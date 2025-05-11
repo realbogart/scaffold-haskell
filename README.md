@@ -9,11 +9,11 @@ Minimal Haskell project scaffolder powered by Nix flakes.
 ## Quick start
 
 ```bash
-# create a new project called "coolapp" under ~/projects
-nix run github:realbogart/scaffold-haskell -- ~/projects/coolapp
+# create a new project called "coolapp" in your home directory
+nix run --refresh github:realbogart/scaffold-haskell -- ~/coolapp
 
 # navigate to the new project
-cd ~/projects/coolapp
+cd ~/coolapp
 
 # build and run using Nix
 nix run .
