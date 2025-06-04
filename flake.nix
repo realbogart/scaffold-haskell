@@ -12,8 +12,9 @@
         pkgs = import nixpkgs { inherit system; };
         templateDir = ./templates;
       in {
-        devShells.default =
-          pkgs.mkShell { packages = [ pkgs.jq pkgs.mustache-go ]; };
+        devShells.default = pkgs.mkShell {
+          packages = [ pkgs.jq pkgs.mustache-go pkgs.git pkgs.direnv ];
+        };
 
         packages.default = pkgs.writeShellApplication {
           name = "scaffold-haskell";

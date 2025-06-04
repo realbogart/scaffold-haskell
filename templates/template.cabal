@@ -34,10 +34,11 @@ common extensions
                         RecordWildCards,
                         DeriveDataTypeable
 
-executable {{project_name}}
+library
     import:           warnings
     import:           extensions
-    main-is:          Main.hs
+    hs-source-dirs:   lib
+    exposed-modules:  {{project_name_capitalized}}
     build-depends:    base,
                       text,
                       bytestring,
@@ -45,11 +46,20 @@ executable {{project_name}}
                       unordered-containers,
                       directory,
                       filepath,
-                      cmdargs,
                       stm,
                       transformers,
                       binary,
                       foreign-store
+    hs-source-dirs:   src
+    default-language: GHC2021
+
+executable {{project_name}}
+    import:           warnings
+    import:           extensions
+    main-is:          Main.hs
+    build-depends:    base,
+                      {{project_name}},
+                      cmdargs
     hs-source-dirs:   src
     default-language: GHC2021
 

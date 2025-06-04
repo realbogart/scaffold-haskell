@@ -1,3 +1,5 @@
 module Main where
 
-main = putStrLn "Hello World"
+import {{project_name_capitalized}} qualified
+
+main = {{project_name_capitalized}}.main
