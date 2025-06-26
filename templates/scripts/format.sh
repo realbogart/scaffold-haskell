@@ -3,5 +3,5 @@
 set -e
 
 echo "Formatting Haskell files..."
-find src/ lib/ -name "*.hs" -exec ormolu --mode inplace {} \;
+find src/ lib/ test/ bench/ -name "*.hs" -exec ormolu --mode inplace {} \;
 echo "Formatting complete!"
