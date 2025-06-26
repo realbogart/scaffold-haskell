@@ -13,15 +13,19 @@ spec = do
       {{project_name_capitalized}}.main `shouldReturn` ()
 
   describe "String operations (example)" $ do
-    it "reverse . reverse should be identity" $ property $
-      \s -> reverse (reverse s) == (s :: String)
+    it "reverse . reverse should be identity" $
+      property $
+        \s -> reverse (reverse s) == (s :: String)
 
-    it "length of concatenation equals sum of lengths" $ property $
-      \xs ys -> length (xs ++ ys) == length xs + length (ys :: [Int])
+    it "length of concatenation equals sum of lengths" $
+      property $
+        \xs ys -> length (xs ++ ys) == length xs + length (ys :: [Int])
 
   describe "Arithmetic properties (example)" $ do
-    it "addition is commutative" $ property $
-      \x y -> x + y == y + (x :: Int)
+    it "addition is commutative" $
+      property $
+        \x y -> x + y == y + (x :: Int)
 
-    it "multiplication by zero" $ property $
-      \x -> x * 0 == (0 :: Int)
+    it "multiplication by zero" $
+      property $
+        \x -> x * 0 == (0 :: Int)
