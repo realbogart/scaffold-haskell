@@ -24,6 +24,7 @@ find "$TEMPLATE_DIR" -type f | while read -r tpl; do
     case "$rel" in
         template.cabal) rel="${PROJECT_NAME}.cabal" ;;
         lib/template.hs) rel="lib/${PROJECT_NAME_CAPITALIZED}.hs" ;;
+        test/{{project_name_capitalized}}Spec.hs) rel="test/${PROJECT_NAME_CAPITALIZED}Spec.hs" ;;
     esac
     dest="$OUT_DIR/$rel"
     mkdir -p "$(dirname "$dest")"
