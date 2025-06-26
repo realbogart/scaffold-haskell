@@ -29,7 +29,7 @@ find "$TEMPLATE_DIR" -type f | while read -r tpl; do
     mkdir -p "$(dirname "$dest")"
     mustache "$DATA_FILE" "$tpl" >"$dest"
     chmod u+rw "$dest"
-    if [[ ${rel##*/} == "ghcid.sh" ]]; then
+    if [[ ${rel##*/} == "ghcid.sh" ]] || [[ $rel == scripts/*.sh ]]; then
         chmod u+wx "$dest"
     fi
     :
