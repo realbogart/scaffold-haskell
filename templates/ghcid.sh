@@ -1,3 +1,3 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 
 ghcid --command "cabal repl" --test="main"
