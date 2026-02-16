@@ -80,12 +80,9 @@ nix build .#container
 
 ## Important Reminders
 
-1. **Keep behaviour covered by automated tests; update coverage when behaviour changes**
-2. **Always run format and verify scripts after changes**
-3. **Fix all warnings - never disable them in source code**
-4. **Use the cabal file to understand enabled language extensions**
-5. **Enter nix develop shell for all development work**
-6. **Use ghcid for continuous feedback during development**
-7. **Run tests frequently - they should always pass**
-8. **Test builds before committing any changes**
-9. **NEVER make git commits - leave that to the user**
+1. **Always run format and verify scripts after changes**
+2. **Fix all warnings - never disable them in source code**
+3. **Use the cabal file to understand enabled language extensions**
+4. **Enter nix develop shell for all development work**
+5. **Use ghcid for continuous feedback during development**
+6. **NEVER make git commits - leave that to the user**

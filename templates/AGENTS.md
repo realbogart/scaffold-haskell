@@ -13,7 +13,6 @@ This file explains how multiple agents should collaborate when working on this p
 ## Quality Expectations
 
 - Always run `./scripts/format.sh` and `./scripts/verify.sh` after touching Haskell sources.
-- Use `./scripts/test.sh` for quick feedback; add or update tests whenever behaviour changes.
 - Fix warnings instead of suppressing them. Update shared configuration rather than local overrides.
 - Capture manual test steps or reproduction commands in the discussion when automated coverage is not available.
 
