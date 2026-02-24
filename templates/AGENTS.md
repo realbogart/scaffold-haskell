@@ -1,30 +1,53 @@
 # AGENTS.md
 
-This file explains how multiple agents should collaborate when working on this project template.
+This file provides guidance to AI agents when working with code in this repository.
 
-## Collaboration Principles
+## Project Overview
 
-- Read `README.md` and `CLAUDE.md` before making changes so everyone starts from the same context.
-- Share intent upfront: outline the planned change, impacted modules, and verification strategy.
-- Prefer incremental pull requests; leave large refactors for explicit coordination.
-- Document open questions or risky assumptions directly in issues, commits, or PR descriptions.
-- Leave the workspace clean: revert temporary tooling, keep scripts executable, and avoid committing editor artefacts.
+This is a Haskell project built with Nix flakes for reproducible development environments and haskell.nix for building. The project follows strict code quality standards with comprehensive warning flags and formatting requirements.
 
-## Quality Expectations
+## Development Workflow
 
-- Always run `./scripts/format.sh` and `./scripts/verify.sh` after touching Haskell sources.
-- Fix warnings instead of suppressing them. Update shared configuration rather than local overrides.
-- Capture manual test steps or reproduction commands in the discussion when automated coverage is not available.
+**ALWAYS run these commands after making changes to Haskell source:**
+```bash
+./scripts/format.sh
+./scripts/verify.sh
+```
 
-## Development Environment
+These scripts ensure code formatting and successful builds. Never skip this step after making changes.
 
-- Enter the dev shell with `nix develop` (or use `direnv` for automatic loading).
-- Use `./ghcid.sh` for fast iteration during feature work.
-- Keep `flake.nix`, `cabal.project`, and `template.cabal` consistent when changing dependencies.
+## Development Commands
 
-## Handover Checklist
+**Build with cabal (in nix shell):**
+```bash
+cabal build
+cabal run {{project_name}}
+```
 
-- Summarise what changed, why, and any follow-up work that remains.
-- Point to relevant files or modules by path so the next agent can resume quickly.
-- Mention verification status (tests run, lint, manual checks) so others know the current state.
-- Flag breaking changes or migrations early to give downstream consumers time to react.
+## Code Quality Standards
+
+**Warnings:**
+- ALWAYS fix all compiler warnings - never ignore them
+- Disable warnings in the cabal file's `common warnings` section, NEVER in source files
+- The project uses `-Weverything` with specific exclusions for practical development
+
+## Architecture
+
+**Project Structure:**
+- `src/Main.hs` - Executable entry point that delegates to library
+- `lib/` - Library modules with core functionality
+- `scripts/` - Development automation scripts
+- `flake.nix` - Nix flake defining the development environment and build
+
+**Development Environment:**
+- GHC 9.10.1 via haskell.nix
+- Includes hlint, HLS, ormolu, and ghcid in development shell
+- Comprehensive warning flags for strict code quality
+- Uses GHC2021 language standard
+
+## Important Reminders
+
+1. **Always run format and verify scripts after changes**
+2. **Fix all warnings - never disable them in source code**
+3. **Use the cabal file to understand enabled language extensions**
+4. **NEVER make git commits - leave that to the user**
