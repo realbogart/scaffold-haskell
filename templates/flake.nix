@@ -1,5 +1,5 @@
 {
-  description = "{{description}}";
+  description = "{{project_name}}";
 
   inputs = {
     nixpkgs.url =
@@ -11,31 +11,27 @@
   outputs = { self, nixpkgs, flake-utils, haskellNix }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        overlays = [
-          haskellNix.overlay
-          (final: prev: {
-            {{project_name}} = final.haskell-nix.project' {
-              src = ./.;
-              compiler-nix-name = "ghc9101";
-              shell.tools = {
-                cabal = { };
-                hlint = { };
-                haskell-language-server = { };
-              };
-              shell.buildInputs = with pkgs; [
-                nixpkgs-fmt
-                ghcid
-                ormolu
-                pkg-config
-              ];
-            };
-          })
-        ];
         pkgs = import nixpkgs {
-          inherit system overlays;
+          inherit system;
+          overlays = [ haskellNix.overlay ];
           inherit (haskellNix) config;
         };
-        flake = pkgs.{{project_name}}.flake { };
+        project = pkgs.haskell-nix.project' {
+          src = ./.;
+          compiler-nix-name = "ghc9101";
+          shell.tools = {
+            cabal = { };
+            hlint = { };
+            haskell-language-server = { };
+          };
+          shell.buildInputs = with pkgs; [
+            nixpkgs-fmt
+            ghcid
+            ormolu
+            pkg-config
+          ];
+        };
+        flake = project.flake { };
       in flake // {
         packages = flake.packages // {
           default = flake.packages."{{project_name}}:exe:{{project_name}}";
@@ -43,7 +39,7 @@
             name = "{{project_name}}";
             # tag = self.rev or "dirty";
             tag = "latest"; # TODO: Better tagging
-            contents = [ flake.packages."{{project_name}}:exe:{{project_name}}" ./web ];
+            contents = [ flake.packages."{{project_name}}:exe:{{project_name}}" ];
             config = {
               Cmd = [ ];
               Entrypoint = [ "/bin/{{project_name}}" ];

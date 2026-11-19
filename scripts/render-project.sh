@@ -1,50 +1,87 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-[[ $# -eq 1 ]] || { echo "Usage: $0 /absolute/output/dir" >&2; exit 64; }
+usage() {
+    echo "Usage: scaffold-haskell PROJECT_DIR"
+}
 
-OUT_DIR="${1%/}"
-[[ $OUT_DIR = /* ]] || { echo "❌OUT_DIR must be an absolute path"; exit 64; }
+if [[ $# -eq 1 && ($1 == --help || $1 == -h) ]]; then
+    usage
+    exit 0
+fi
+[[ $# -eq 1 && -n $1 ]] || { usage >&2; exit 64; }
 
-PROJECT_NAME=$(basename "$OUT_DIR")
-PROJECT_NAME_CAPITALIZED=${PROJECT_NAME^}
-
-TEMPLATE_DIR="${TEMPLATE_DIR:-templates}"
-
-command -v mustache >/dev/null || { echo "❌mustache CLI not found"; exit 1; }
-
-mkdir -p "$OUT_DIR"
-
-DATA_FILE=$(mktemp)
-printf '{"project_name":"%s","project_name_capitalized":"%s"}' \
-       "$PROJECT_NAME" "$PROJECT_NAME_CAPITALIZED" >"$DATA_FILE"
-
-find "$TEMPLATE_DIR" -type f | while read -r tpl; do
-    rel=${tpl#"$TEMPLATE_DIR"/}
-    case "$rel" in
-        template.cabal) rel="${PROJECT_NAME}.cabal" ;;
-        lib/template.hs) rel="lib/${PROJECT_NAME_CAPITALIZED}.hs" ;;
-        test/{{project_name_capitalized}}Spec.hs) rel="test/${PROJECT_NAME_CAPITALIZED}Spec.hs" ;;
-    esac
-    dest="$OUT_DIR/$rel"
-    mkdir -p "$(dirname "$dest")"
-    mustache "$DATA_FILE" "$tpl" >"$dest"
-    chmod u+rw "$dest"
-    if [[ ${rel##*/} == "ghcid.sh" ]] || [[ $rel == scripts/*.sh ]]; then
-        chmod u+wx "$dest"
-    fi
-    :
+export LC_ALL=C
+out_dir=$1
+[[ $out_dir == /* ]] || out_dir="$PWD/$out_dir"
+while [[ $out_dir == */ && $out_dir != / ]]; do
+    out_dir=${out_dir%/}
 done
+project_name=${out_dir##*/}
+parent=${out_dir%/*}
 
-rm -f "$DATA_FILE"
-
-if command -v git >/dev/null; then
-    cd "$OUT_DIR"
-    git init -q
-    git add .
-    git commit -qm "Initial commit" || true
+# Each Cabal package-name component must contain at least one letter.
+component_pattern='[0-9]*[a-zA-Z][a-zA-Z0-9]*'
+package_pattern="^${component_pattern}(-${component_pattern})*$"
+if [[ ! $project_name =~ $package_pattern ]]; then
+    echo "Invalid package name '$project_name'. Use letters, digits, and hyphens, with a letter in each component." >&2
+    exit 64
 fi
 
-command -v direnv >/dev/null && (cd "$OUT_DIR" && direnv allow) || true
+IFS=- read -ra components <<< "$project_name"
+module_name=""
+for component in "${components[@]}"; do
+    module_name+=${component^}
+done
+case $module_name in
+    [0-9]*) module_name="Project$module_name" ;;
+    Main|Prelude) module_name+=Lib ;;
+esac
 
-echo "✅ Project rendered to $OUT_DIR"
+if [[ -e $out_dir || -L $out_dir ]]; then
+    echo "Destination already exists: $out_dir" >&2
+    exit 1
+fi
+
+template_dir=${TEMPLATE_DIR:-"$(dirname -- "${BASH_SOURCE[0]}")/../templates"}
+template_dir=$(realpath -e -- "$template_dir")
+mkdir -p -- "${parent:-/}"
+stage=$(mktemp -d -- "$parent/.scaffold-haskell.XXXXXXXX")
+trap 'rm -rf -- "$stage"' EXIT
+mkdir -- "$stage/project"
+printf '{"project_name":"%s","project_name_capitalized":"%s"}\n' \
+    "$project_name" "$module_name" > "$stage/data.json"
+
+find "$template_dir" -type f -print0 | while IFS= read -r -d '' tpl; do
+    rel=${tpl#"$template_dir"/}
+    case "$rel" in
+        template.cabal) rel="$project_name.cabal" ;;
+        lib/template.hs) rel="lib/$module_name.hs" ;;
+        'test/{{project_name_capitalized}}Spec.hs') rel="test/${module_name}Spec.hs" ;;
+    esac
+    dest="$stage/project/$rel"
+    mkdir -p -- "$(dirname -- "$dest")"
+    mustache "$stage/data.json" "$tpl" > "$dest"
+    if [[ -x $tpl ]]; then
+        chmod +x -- "$dest"
+    fi
+done
+
+# Publish the complete tree in one rename, including when two renders race.
+mv -Tn -- "$stage/project" "$out_dir"
+if [[ -d $stage/project ]]; then
+    echo "Destination already exists: $out_dir" >&2
+    exit 1
+fi
+
+if command -v git >/dev/null; then
+    git -C "$out_dir" init -q
+    git -C "$out_dir" add .
+    git -C "$out_dir" commit -qm "Initial commit" || true
+fi
+
+if command -v direnv >/dev/null; then
+    (cd -- "$out_dir" && direnv allow) || true
+fi
+
+echo "Project rendered to $out_dir"
