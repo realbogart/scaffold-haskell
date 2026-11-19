@@ -1,5 +1,6 @@
-module Main where
+module Main (main) where
 
-import {{project_name_capitalized}} qualified
+import {{project_name_capitalized}} qualified as App
 
-main = {{project_name_capitalized}}.main
+main :: IO ()
+main = App.main

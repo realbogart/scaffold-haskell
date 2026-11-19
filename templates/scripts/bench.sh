@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
+cd -- "$(dirname -- "$0")/.."
 
-set -e
-
-echo "Running benchmarks..."
-cabal bench
-echo "Benchmarks completed!"
+exec cabal bench "$@"

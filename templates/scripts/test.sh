@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
+cd -- "$(dirname -- "$0")/.."
 
-set -e
-
-echo "Running tests..."
-cabal test
-echo "Tests completed!"
+exec cabal test --test-show-details=direct "$@"

@@ -1,17 +1,12 @@
 cabal-version:      3.4
 name:               {{project_name}}
 version:            0.1.0.0
--- synopsis:
--- description:
-homepage:           https://sonic-stride.com/
+synopsis:           A greeting executable and library for {{project_name}}
 license:            MIT
 author:             Johan Yngman
 maintainer:         johan.yngman@gmail.com
--- copyright:
-category:           Web
 build-type:         Simple
--- extra-doc-files:    CHANGELOG.md
--- extra-source-files:
+extra-doc-files:    README.md
 
 common warnings
     ghc-options:      -Weverything -Wno-missing-signatures -Wno-missing-exported-signatures
@@ -20,9 +15,11 @@ common warnings
                       -Wno-unsafe -Wno-missing-local-signatures -Wno-missing-kind-signatures
                       -Wno-all-missed-specialisations -Wno-missed-specialisations -Wno-ambiguous-fields
                       -Wno-missing-deriving-strategies -Wno-prepositive-qualified-module
-                      -Wno-unused-top-binds -threaded
+                      -Wno-unused-top-binds
 
-common extensions
+common defaults
+    default-language:   GHC2021
+    build-depends:      base >= 4.18 && < 5
     default-extensions: OverloadedStrings,
                         DuplicateRecordFields,
                         NoFieldSelectors,
@@ -35,57 +32,30 @@ common extensions
                         DeriveDataTypeable
 
 library
-    import:           warnings
-    import:           extensions
+    import:           warnings, defaults
     hs-source-dirs:   lib
     exposed-modules:  {{project_name_capitalized}}
-    build-depends:    base,
-                      text,
-                      bytestring,
-                      async,
-                      unordered-containers,
-                      directory,
-                      filepath,
-                      stm,
-                      transformers,
-                      binary,
-                      foreign-store
-    hs-source-dirs:   src
-    default-language: GHC2021
 
 executable {{project_name}}
-    import:           warnings
-    import:           extensions
-    main-is:          Main.hs
-    build-depends:    base,
-                      {{project_name}},
-                      cmdargs
+    import:           warnings, defaults
     hs-source-dirs:   src
-    default-language: GHC2021
+    main-is:          Main.hs
+    build-depends:    {{project_name}}
+    ghc-options:      -threaded
 
 test-suite {{project_name}}-test
-    import:           warnings
-    import:           extensions
+    import:           warnings, defaults
     type:             exitcode-stdio-1.0
+    hs-source-dirs:   test
     main-is:          Main.hs
     other-modules:    {{project_name_capitalized}}Spec
-    build-depends:    base,
-                      {{project_name}},
-                      hspec,
-                      QuickCheck
-    hs-source-dirs:   test
-    default-language: GHC2021
-    ghc-options:      -threaded -rtsopts -with-rtsopts=-N
+    build-depends:    {{project_name}}, hspec, QuickCheck
+    ghc-options:      -threaded -rtsopts
 
 benchmark {{project_name}}-bench
-    import:           warnings
-    import:           extensions
+    import:           warnings, defaults
     type:             exitcode-stdio-1.0
-    main-is:          Main.hs
-    build-depends:    base,
-                      {{project_name}},
-                      criterion
     hs-source-dirs:   bench
-    default-language: GHC2021
-    ghc-options:      -threaded -rtsopts -with-rtsopts=-N
-
+    main-is:          Main.hs
+    build-depends:    {{project_name}}, criterion
+    ghc-options:      -threaded -rtsopts

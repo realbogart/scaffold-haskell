@@ -1,3 +1,7 @@
-module {{project_name_capitalized}} where
+module {{project_name_capitalized}} (greeting, main) where
 
-main = putStrLn "Hello, world!"
+greeting :: String -> String
+greeting name = "Hello, " ++ name ++ "!"
+
+main :: IO ()
+main = putStrLn (greeting "world")

@@ -27,24 +27,9 @@
         apps.default = flake-utils.lib.mkApp { drv = scaffolder; };
 
         checks.render = pkgs.runCommand "check-scaffold-haskell" {
-          nativeBuildInputs = [ scaffolder ];
+          nativeBuildInputs = [ scaffolder pkgs.git ];
         } ''
-          scaffold-haskell "with spaces/cool-app"
-          cd "with spaces/cool-app"
-          test -f .envrc
-          test -x ghcid.sh
-          test -x scripts/test.sh
-          grep -Fx 'module CoolApp where' lib/CoolApp.hs
-          grep -F 'exposed-modules:  CoolApp' cool-app.cabal
-          grep -F 'CoolAppSpec' test/CoolAppSpec.hs
-          if grep -rF '{{' .; then exit 1; fi
-
-          echo 'keep me' > README.md
-          cd ../..
-          if scaffold-haskell "with spaces/cool-app"; then exit 1; fi
-          grep -Fx 'keep me' "with spaces/cool-app/README.md"
-          if scaffold-haskell app-123; then exit 1; fi
-          test ! -e app-123
+          bash ${./scripts/check-render.sh}
           touch "$out"
         '';
       });

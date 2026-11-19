@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
+set -euo pipefail
+cd -- "$(dirname -- "$0")/.."
 
-set -e
-
-echo "Building project..."
-cabal build
-echo "Build successful!"
-
-echo "Running tests..."
-cabal test
-echo "Tests passed!"
+cabal build all --enable-tests --enable-benchmarks
+exec ./scripts/test.sh

@@ -1,15 +1,14 @@
-module Main where
+module Main (main) where
 
 import Criterion.Main
-import {{project_name_capitalized}} qualified
+import {{project_name_capitalized}} qualified as App
 
--- Example benchmarks for common operations
 main :: IO ()
 main =
   defaultMain
     [ bgroup
-        "String operations"
-        [ bench "reverse short string" $ whnf reverse "hello",
-          bench "concatenation" $ whnf (++ "world") "hello "
+        "greeting"
+        [ bench "short name" $ nf App.greeting "world",
+          bench "long name" $ nf App.greeting (replicate 1000 'a')
         ]
     ]
